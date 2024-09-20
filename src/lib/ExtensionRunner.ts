@@ -13,11 +13,20 @@ export class ExtensionRunner {
   public hasInitialized = false;
 
 
-  constructor(private _url: string) {}
+  constructor(private _url: string) { }
 
 
   public activate() {
-    this._worker = new Worker(this._url, { type: 'module' });
+    const workerUrl = URL.createObjectURL(
+      new Blob(
+        [`import("${this._url}").then(m => new m.default(self))`],
+        { type: "text/javascript" }
+      )
+    );
+
+    setTimeout(() => URL.revokeObjectURL(workerUrl), 0);
+
+    this._worker = new Worker(workerUrl, { type: 'module' });
     this._workerMessageSender = new WorkerMessageSender(this._worker);
     this._workerMessageReceiver = new WorkerMessageReceiver(this._worker);
 
