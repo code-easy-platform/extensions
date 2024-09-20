@@ -60,6 +60,9 @@ export class ExtensionRunner {
       case 'set:description':
         this.description = message.payload || 'Nothing set here';
         break;
+      case 'feedback':
+        this._handleFeedback(message.payload);
+        break;
       case 'add:exporter':
         this._handleAddExporter(message.payload);
         break;
@@ -99,6 +102,12 @@ export class ExtensionRunner {
     ExtensionRunner.downloadFile(payload.fileName, payload.fileType, payload.fileContent);
   }
 
+  private _handleFeedback(payload: { message: string; type: string; }) {
+    if (!payload) return;
+
+    ExtensionRunner.feedback(payload.message, payload.type);
+  }
+
 
   public static addExporter(_exporter: IExporter) {
     throw new Error("Add exporter method not implemented yet");
@@ -110,5 +119,9 @@ export class ExtensionRunner {
 
   public static downloadFile(_fileName: string, _fileType: string, _fileContent: string) {
     throw new Error("Download file method not implemented yet");
+  }
+
+  public static feedback(_message: string, _type: string) {
+    throw new Error("Feedback method not implemented yet");
   }
 }

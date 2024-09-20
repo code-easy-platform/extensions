@@ -26,6 +26,7 @@ export declare class Extension {
     }): Promise<void>;
     removeExporter(key: string): Promise<void>;
     downloadFile(fileName: string, fileType: string, fileContent: string): Promise<void>;
+    feedback(message: string, type: string): Promise<void>;
     private _onEvent;
     private _onInit;
 }

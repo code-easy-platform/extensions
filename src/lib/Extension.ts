@@ -75,6 +75,13 @@ export class Extension {
     });
   }
 
+  public async feedback(message: string, type: string) {
+    await this._workerSender.send({
+      type: 'feedback',
+      payload: { message, type },
+    });
+  }
+
 
   private _onEvent(message: IMessage) {
     this._commands[message.type]?.(message.payload);
