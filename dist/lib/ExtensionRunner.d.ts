@@ -19,5 +19,5 @@ export declare class ExtensionRunner {
     static addExporter(_exporter: IExporter): void;
     static removeExporter(_key: string): void;
     static downloadFile(_fileName: string, _fileType: string, _fileContent: string): void;
-    static feedback(_message: string, _type: string): void;
+    static feedback(_message: string, _type: 'warning' | 'success' | 'error' | 'info'): void;
 }

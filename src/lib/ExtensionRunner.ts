@@ -121,7 +121,7 @@ export class ExtensionRunner {
     throw new Error("Download file method not implemented yet");
   }
 
-  public static feedback(_message: string, _type: string) {
+  public static feedback(_message: string, _type: 'warning' | 'success' | 'error' | 'info') {
     throw new Error("Feedback method not implemented yet");
   }
 }
