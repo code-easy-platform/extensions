@@ -37,6 +37,10 @@ export class ExtensionRunner {
     this._workerMessageSender.send({ type: 'activate' })
       .then(() => this.hasInitialized = true)
       .catch(() => console.warn('Failed to activate a extension'))
+
+    this._workerMessageSender?.send({ type: 'information' })
+      .then(() => { })
+      .catch(() => console.warn('Failed to call information from extension'));
   }
 
   public deactivate() {

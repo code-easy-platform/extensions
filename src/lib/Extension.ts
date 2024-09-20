@@ -15,13 +15,12 @@ export class Extension {
   constructor(_target: Window | Worker) {
     this._workerReceiver = new WorkerMessageReceiver(_target);
     this._workerSender = new WorkerMessageSender(_target);
-
+    
     this._commands['activate'] = this.activate.bind(this);
     this._commands['deactivate'] = this.deactivate.bind(this);
+    this._commands['information'] = this._handleInformation.bind(this);
 
     this._workerReceiver.onMessage = this._onEvent.bind(this);
-
-    this._onInit();
   }
 
 
@@ -112,7 +111,7 @@ export class Extension {
     this._commands[message.type]?.(message.payload);
   }
 
-  private async _onInit() {
+  private async _handleInformation() {
     await this._workerSender.send({
       type: 'set:name',
       payload: this.name || 'Nothing set here',

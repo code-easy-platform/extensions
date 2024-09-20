@@ -56,5 +56,5 @@ export declare class Extension {
         readonly feedback: (message: string, type: "warning" | "success" | "error" | "info") => Promise<void>;
     };
     private _onEvent;
-    private _onInit;
+    private _handleInformation;
 }
