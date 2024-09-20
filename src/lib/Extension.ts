@@ -28,11 +28,11 @@ export class Extension {
   /**
    * Use this prop to create a good name of the extension. This will be showed in the platform.
    */
-  public name = null;
+  public name: string | null = null;
   /**
    * Use this prop to create a good description of the extension. This will be showed in the platform.
    */
-  public description = null;
+  public description: string | null = null;
   /**
    * First function call when extension starts.
    */
@@ -43,44 +43,69 @@ export class Extension {
   public deactivate() { }
 
 
-  public async addExporter(exporter: Pick<IExporter, 'key' | 'label'> & { action: ((data: any) => void) }) {
-    const commandKey = `${this._extensionId}:${exporter.key}`;
+  /**
+   * All available commands to do in the platform
+   */
+  public readonly commands = {
+    /**
+     * Allow you to add a project exporter in the platform. You can develop a code export.
+     * 
+     * @param exporter Object with a action
+     */
+    addExporter: async (exporter: Pick<IExporter, 'key' | 'label'> & { action: ((data: any) => void) }) => {
+      const commandKey = `${this._extensionId}:${exporter.key}`;
 
-    this._commands[`exporters:${commandKey}`] = exporter.action.bind(this);
+      this._commands[`exporters:${commandKey}`] = exporter.action.bind(this);
 
-    await this._workerSender.send({
-      type: 'add:exporter',
-      payload: {
-        key: commandKey,
-        label: exporter.label,
-      },
-    });
-  }
+      await this._workerSender.send({
+        type: 'add:exporter',
+        payload: {
+          key: commandKey,
+          label: exporter.label,
+        },
+      });
+    },
+    /**
+     * Used to remove the project exporter
+     * 
+     * @param key Key of the exporter previous added
+     */
+    removeExporter: async (key: string) => {
+      const commandKey = `${this._extensionId}:${key}`;
 
-  public async removeExporter(key: string) {
-    const commandKey = `${this._extensionId}:${key}`;
+      delete this._commands[`exporters:${commandKey}`];
 
-    delete this._commands[`exporters:${commandKey}`];
-
-    await this._workerSender.send({
-      type: 'remove:exporter',
-      payload: commandKey,
-    });
-  }
-
-  public async downloadFile(fileName: string, fileType: string, fileContent: string) {
-    await this._workerSender.send({
-      type: 'download:file',
-      payload: { fileName, fileType, fileContent },
-    });
-  }
-
-  public async feedback(message: string, type: string) {
-    await this._workerSender.send({
-      type: 'feedback',
-      payload: { message, type },
-    });
-  }
+      await this._workerSender.send({
+        type: 'remove:exporter',
+        payload: commandKey,
+      });
+    },
+    /**
+     * Allow you to download some content in a file
+     * 
+     * @param fileName Name of the generated file
+     * @param fileType extension of the file
+     * @param fileContent file content in string
+     */
+    downloadFile: async (fileName: string, fileType: string, fileContent: string) => {
+      await this._workerSender.send({
+        type: 'download:file',
+        payload: { fileName, fileType, fileContent },
+      });
+    },
+    /**
+     * Allow to show some feedback to the platform user
+     * 
+     * @param message Message of the feedback
+     * @param type type of the feedback
+     */
+    feedback: async (message: string, type: 'warning' | 'success' | 'error' | 'info') => {
+      await this._workerSender.send({
+        type: 'feedback',
+        payload: { message, type },
+      });
+    },
+  } as const;
 
 
   private _onEvent(message: IMessage) {

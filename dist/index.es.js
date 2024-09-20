@@ -16,15 +16,15 @@ class o {
   }
   async send(e) {
     return new Promise((t, s) => {
-      const a = crypto.randomUUID();
-      this._messageQueue[a] = () => {
-        delete this._messageQueue[a], t("complete");
+      const r = crypto.randomUUID();
+      this._messageQueue[r] = () => {
+        delete this._messageQueue[r], t("complete");
       }, this._target.postMessage({
         type: "request",
         payload: e,
-        messageId: a
+        messageId: r
       }), setTimeout(() => {
-        delete this._messageQueue[a], s("Time out");
+        delete this._messageQueue[r], s("Time out");
       }, 500);
     });
   }
@@ -39,7 +39,7 @@ class o {
     e instanceof MessageEvent && e.data.type === "response" && ((s = (t = this._messageQueue)[e.data.messageId]) == null || s.call(t));
   }
 }
-class r {
+class a {
   constructor(e) {
     this._url = e, this._worker = null, this._workerMessageSender = null, this._workerMessageReceiver = null, this.name = null, this.hasError = !1, this.description = null, this.hasInitialized = !1;
   }
@@ -82,7 +82,7 @@ class r {
     }
   }
   _handleAddExporter(e) {
-    e && r.addExporter({
+    e && a.addExporter({
       key: e.key,
       label: e.label,
       action: async (t) => {
@@ -92,13 +92,13 @@ class r {
     });
   }
   _handleRemoveExporter(e) {
-    e && r.removeExporter(e);
+    e && a.removeExporter(e);
   }
   _handleDownloadFile(e) {
-    e && r.downloadFile(e.fileName, e.fileType, e.fileContent);
+    e && a.downloadFile(e.fileName, e.fileType, e.fileContent);
   }
   _handleFeedback(e) {
-    e && r.feedback(e.message, e.type);
+    e && a.feedback(e.message, e.type);
   }
   static addExporter(e) {
     throw new Error("Add exporter method not implemented yet");
@@ -115,7 +115,60 @@ class r {
 }
 class d {
   constructor(e) {
-    this._extensionId = crypto.randomUUID(), this._commands = {}, this.name = null, this.description = null, this._workerReceiver = new n(e), this._workerSender = new o(e), this._commands.activate = this.activate.bind(this), this._commands.deactivate = this.deactivate.bind(this), this._workerReceiver.onMessage = this._onEvent.bind(this), this._onInit();
+    this._extensionId = crypto.randomUUID(), this._commands = {}, this.name = null, this.description = null, this.commands = {
+      /**
+       * Allow you to add a project exporter in the platform. You can develop a code export.
+       * 
+       * @param exporter Object with a action
+       */
+      addExporter: async (t) => {
+        const s = `${this._extensionId}:${t.key}`;
+        this._commands[`exporters:${s}`] = t.action.bind(this), await this._workerSender.send({
+          type: "add:exporter",
+          payload: {
+            key: s,
+            label: t.label
+          }
+        });
+      },
+      /**
+       * Used to remove the project exporter
+       * 
+       * @param key Key of the exporter previous added
+       */
+      removeExporter: async (t) => {
+        const s = `${this._extensionId}:${t}`;
+        delete this._commands[`exporters:${s}`], await this._workerSender.send({
+          type: "remove:exporter",
+          payload: s
+        });
+      },
+      /**
+       * Allow you to download some content in a file
+       * 
+       * @param fileName Name of the generated file
+       * @param fileType extension of the file
+       * @param fileContent file content in string
+       */
+      downloadFile: async (t, s, r) => {
+        await this._workerSender.send({
+          type: "download:file",
+          payload: { fileName: t, fileType: s, fileContent: r }
+        });
+      },
+      /**
+       * Allow to show some feedback to the platform user
+       * 
+       * @param message Message of the feedback
+       * @param type type of the feedback
+       */
+      feedback: async (t, s) => {
+        await this._workerSender.send({
+          type: "feedback",
+          payload: { message: t, type: s }
+        });
+      }
+    }, this._workerReceiver = new n(e), this._workerSender = new o(e), this._commands.activate = this.activate.bind(this), this._commands.deactivate = this.deactivate.bind(this), this._workerReceiver.onMessage = this._onEvent.bind(this), this._onInit();
   }
   /**
    * First function call when extension starts.
@@ -126,35 +179,6 @@ class d {
    * Last function call when extension ends.
    */
   deactivate() {
-  }
-  async addExporter(e) {
-    const t = `${this._extensionId}:${e.key}`;
-    this._commands[`exporters:${t}`] = e.action.bind(this), await this._workerSender.send({
-      type: "add:exporter",
-      payload: {
-        key: t,
-        label: e.label
-      }
-    });
-  }
-  async removeExporter(e) {
-    const t = `${this._extensionId}:${e}`;
-    delete this._commands[`exporters:${t}`], await this._workerSender.send({
-      type: "remove:exporter",
-      payload: t
-    });
-  }
-  async downloadFile(e, t, s) {
-    await this._workerSender.send({
-      type: "download:file",
-      payload: { fileName: e, fileType: t, fileContent: s }
-    });
-  }
-  async feedback(e, t) {
-    await this._workerSender.send({
-      type: "feedback",
-      payload: { message: e, type: t }
-    });
   }
   _onEvent(e) {
     var t, s;
@@ -172,6 +196,6 @@ class d {
 }
 export {
   d as Extension,
-  r as ExtensionRunner
+  a as ExtensionRunner
 };
 //# sourceMappingURL=index.es.js.map
