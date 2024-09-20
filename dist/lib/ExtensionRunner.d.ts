@@ -4,7 +4,9 @@ export declare class ExtensionRunner {
     private _worker;
     private _workerMessageSender;
     private _workerMessageReceiver;
+    name: null;
     hasError: boolean;
+    description: null;
     hasInitialized: boolean;
     constructor(_url: string);
     activate(): void;
@@ -13,7 +15,7 @@ export declare class ExtensionRunner {
     private _handleAddExporter;
     private _handleRemoveExporter;
     private _handleDownloadFile;
-    static addExporter(exporter: IExporter): void;
-    static removeExporter(key: string): void;
-    static downloadFile(fileName: string, fileType: string, fileContent: string): void;
+    static addExporter(_exporter: IExporter): void;
+    static removeExporter(_key: string): void;
+    static downloadFile(_fileName: string, _fileType: string, _fileContent: string): void;
 }

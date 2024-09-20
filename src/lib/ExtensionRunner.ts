@@ -9,7 +9,9 @@ export class ExtensionRunner {
   private _workerMessageSender: WorkerMessageSender | null = null;
   private _workerMessageReceiver: WorkerMessageReceiver | null = null;
 
+  public name = null;
   public hasError = false;
+  public description = null;
   public hasInitialized = false;
 
 
@@ -52,6 +54,12 @@ export class ExtensionRunner {
 
   private _onEvent(message: IMessage) {
     switch (message.type) {
+      case 'set:name':
+        this.name = message.payload || 'Nothing set here';
+        break;
+      case 'set:description':
+        this.description = message.payload || 'Nothing set here';
+        break;
       case 'add:exporter':
         this._handleAddExporter(message.payload);
         break;
@@ -92,15 +100,15 @@ export class ExtensionRunner {
   }
 
 
-  public static addExporter(exporter: IExporter) {
+  public static addExporter(_exporter: IExporter) {
     throw new Error("Add exporter method not implemented yet");
   }
 
-  public static removeExporter(key: string) {
+  public static removeExporter(_key: string) {
     throw new Error("Remove exporter method not implemented yet");
   }
 
-  public static downloadFile(fileName: string, fileType: string, fileContent: string) {
+  public static downloadFile(_fileName: string, _fileType: string, _fileContent: string) {
     throw new Error("Download file method not implemented yet");
   }
 }

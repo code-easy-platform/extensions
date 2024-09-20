@@ -1,4 +1,4 @@
-class n {
+class a {
   constructor(e) {
     this._target = e, this.onMessage = null, this._target.addEventListener("message", this._onMessageEvent.bind(this));
   }
@@ -10,7 +10,7 @@ class n {
     e instanceof MessageEvent && e.data.type === "request" && ((t = this.onMessage) == null || t.call(this, e.data.payload), this._respond(e.data.messageId));
   }
 }
-class i {
+class o {
   constructor(e) {
     this._target = e, this._messageQueue = {}, this._target.onerror = this._onErrorEvent.bind(this), this._target.onmessageerror = this._onErrorMessageEvent.bind(this), this._target.addEventListener("error", this._onErrorEvent.bind(this)), this._target.addEventListener("message", this._onMessageEvent.bind(this)), this._target.addEventListener("messageerror", this._onErrorMessageEvent.bind(this));
   }
@@ -39,9 +39,9 @@ class i {
     e instanceof MessageEvent && e.data.type === "response" && ((s = (t = this._messageQueue)[e.data.messageId]) == null || s.call(t));
   }
 }
-class a {
+class i {
   constructor(e) {
-    this._url = e, this._worker = null, this._workerMessageSender = null, this._workerMessageReceiver = null, this.hasError = !1, this.hasInitialized = !1;
+    this._url = e, this._worker = null, this._workerMessageSender = null, this._workerMessageReceiver = null, this.name = null, this.hasError = !1, this.description = null, this.hasInitialized = !1;
   }
   activate() {
     const e = URL.createObjectURL(
@@ -50,7 +50,7 @@ class a {
         { type: "text/javascript" }
       )
     );
-    setTimeout(() => URL.revokeObjectURL(e), 0), this._worker = new Worker(e, { type: "module" }), this._workerMessageSender = new i(this._worker), this._workerMessageReceiver = new n(this._worker), this._workerMessageReceiver.onMessage = this._onEvent.bind(this), this._workerMessageSender.send({ type: "activate" }).then(() => this.hasInitialized = !0).catch(() => console.warn("Failed to activate a extension"));
+    setTimeout(() => URL.revokeObjectURL(e), 0), this._worker = new Worker(e, { type: "module" }), this._workerMessageSender = new o(this._worker), this._workerMessageReceiver = new a(this._worker), this._workerMessageReceiver.onMessage = this._onEvent.bind(this), this._workerMessageSender.send({ type: "activate" }).then(() => this.hasInitialized = !0).catch(() => console.warn("Failed to activate a extension"));
   }
   deactivate() {
     var e;
@@ -61,6 +61,12 @@ class a {
   }
   _onEvent(e) {
     switch (e.type) {
+      case "set:name":
+        this.name = e.payload || "Nothing set here";
+        break;
+      case "set:description":
+        this.description = e.payload || "Nothing set here";
+        break;
       case "add:exporter":
         this._handleAddExporter(e.payload);
         break;
@@ -73,7 +79,7 @@ class a {
     }
   }
   _handleAddExporter(e) {
-    e && a.addExporter({
+    e && i.addExporter({
       key: e.key,
       label: e.label,
       action: async (t) => {
@@ -83,10 +89,10 @@ class a {
     });
   }
   _handleRemoveExporter(e) {
-    e && a.removeExporter(e);
+    e && i.removeExporter(e);
   }
   _handleDownloadFile(e) {
-    e && a.downloadFile(e.fileName, e.fileType, e.fileContent);
+    e && i.downloadFile(e.fileName, e.fileType, e.fileContent);
   }
   static addExporter(e) {
     throw new Error("Add exporter method not implemented yet");
@@ -100,10 +106,16 @@ class a {
 }
 class d {
   constructor(e) {
-    this._extensionId = crypto.randomUUID(), this._commands = {}, this._workerReceiver = new n(e), this._workerSender = new i(e), this._commands.activate = this.activate.bind(this), this._commands.deactivate = this.deactivate.bind(this), this._workerReceiver.onMessage = this._onEvent.bind(this);
+    this._extensionId = crypto.randomUUID(), this._commands = {}, this.name = null, this.description = null, this._workerReceiver = new a(e), this._workerSender = new o(e), this._commands.activate = this.activate.bind(this), this._commands.deactivate = this.deactivate.bind(this), this._workerReceiver.onMessage = this._onEvent.bind(this), this._onInit();
   }
+  /**
+   * First function call when extension starts.
+   */
   activate() {
   }
+  /**
+   * Last function call when extension ends.
+   */
   deactivate() {
   }
   async addExporter(e) {
@@ -133,9 +145,18 @@ class d {
     var t, s;
     (s = (t = this._commands)[e.type]) == null || s.call(t, e.payload);
   }
+  async _onInit() {
+    await this._workerSender.send({
+      type: "set:name",
+      payload: this.name || "Nothing set here"
+    }), await this._workerSender.send({
+      type: "set:description",
+      payload: this.description || "Nothing set here"
+    });
+  }
 }
 export {
   d as Extension,
-  a as ExtensionRunner
+  i as ExtensionRunner
 };
 //# sourceMappingURL=index.es.js.map
