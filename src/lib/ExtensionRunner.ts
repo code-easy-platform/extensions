@@ -102,7 +102,7 @@ export class ExtensionRunner {
     ExtensionRunner.downloadFile(payload.fileName, payload.fileType, payload.fileContent);
   }
 
-  private _handleFeedback(payload: { message: string; type: string; }) {
+  private _handleFeedback(payload: { message: string; type: 'warning' | 'success' | 'error' | 'info'; }) {
     if (!payload) return;
 
     ExtensionRunner.feedback(payload.message, payload.type);
