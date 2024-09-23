@@ -20,6 +20,7 @@ export class ExtensionRunner {
 
   public loading = observe(false);
 
+  public url: IObservable<string | null> = observe(null);
   public name: IObservable<string | null> = observe(null);
   public version: IObservable<string | null> = observe(null);
   public packageName: IObservable<string | null> = observe(null);
@@ -43,6 +44,7 @@ export class ExtensionRunner {
       this.description.value = _manifestData.description;
       this.packageName.value = _manifestData.packageName;
       this.version.value = this._extensionLoader.version;
+      this.url.value = this._extensionLoader.extensionPackageUrl;
 
       this.exporters.value = _manifestData.exporters.map(exporterData => ({
         label: exporterData.label,
