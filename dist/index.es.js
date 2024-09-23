@@ -1,4 +1,52 @@
-class h {
+let c;
+const v = new Uint8Array(16);
+function k() {
+  if (!c && (c = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !c))
+    throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
+  return c(v);
+}
+const i = [];
+for (let s = 0; s < 256; ++s)
+  i.push((s + 256).toString(16).slice(1));
+function b(s, e = 0) {
+  return i[s[e + 0]] + i[s[e + 1]] + i[s[e + 2]] + i[s[e + 3]] + "-" + i[s[e + 4]] + i[s[e + 5]] + "-" + i[s[e + 6]] + i[s[e + 7]] + "-" + i[s[e + 8]] + i[s[e + 9]] + "-" + i[s[e + 10]] + i[s[e + 11]] + i[s[e + 12]] + i[s[e + 13]] + i[s[e + 14]] + i[s[e + 15]];
+}
+const x = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), _ = {
+  randomUUID: x
+};
+function g(s, e, t) {
+  if (_.randomUUID && !e && !s)
+    return _.randomUUID();
+  s = s || {};
+  const n = s.random || (s.rng || k)();
+  return n[6] = n[6] & 15 | 64, n[8] = n[8] & 63 | 128, b(n);
+}
+function d(s) {
+  const e = [], t = g(), n = (o) => {
+    s = o, e.forEach((h) => h.emit(o));
+  }, r = () => s;
+  return {
+    subscribe: (o) => {
+      const h = { id: g(), emit: o };
+      return e.push(h), {
+        observerId: t,
+        id: h.id,
+        unsubscribe: () => {
+          const u = e.findIndex((y) => y.id === h.id);
+          u < 0 || e.splice(u, 1);
+        }
+      };
+    },
+    id: t,
+    get value() {
+      return r();
+    },
+    set value(o) {
+      n(o);
+    }
+  };
+}
+class m {
   constructor(e) {
     this._target = e, this.onMessage = null, this._target.addEventListener("error", this._onErrorEvent.bind(this)), this._target.addEventListener("message", this._onMessageEvent.bind(this)), this._target.addEventListener("messageerror", this._onErrorMessageEvent.bind(this));
   }
@@ -16,39 +64,39 @@ class h {
     e instanceof MessageEvent && console.log(e);
   }
 }
-class l {
+class w {
   constructor(e) {
     this._target = e, this._messageQueue = {}, this._target.addEventListener("message", this._onMessageEvent.bind(this));
   }
   async send(e) {
-    return new Promise((t, s) => {
-      const n = crypto.randomUUID();
-      this._messageQueue[n] = () => {
-        delete this._messageQueue[n], t("complete");
+    return new Promise((t, n) => {
+      const r = crypto.randomUUID();
+      this._messageQueue[r] = () => {
+        delete this._messageQueue[r], t("complete");
       }, this._target.postMessage({
         type: "request",
         payload: e,
-        messageId: n
+        messageId: r
       }), setTimeout(() => {
-        delete this._messageQueue[n], s("Time out");
+        delete this._messageQueue[r], n("Time out");
       }, 500);
     });
   }
   _onMessageEvent(e) {
-    var t, s;
-    e instanceof MessageEvent && e.data.type === "response" && ((s = (t = this._messageQueue)[e.data.messageId]) == null || s.call(t));
+    var t, n;
+    e instanceof MessageEvent && e.data.type === "response" && ((n = (t = this._messageQueue)[e.data.messageId]) == null || n.call(t));
   }
 }
-class c {
+class E {
   constructor(e, t) {
     this._worker = null, this._workerMessageSender = null, this._workerMessageReceiver = null, this._ready = !1, this._hasError = !1, this._hasInitialized = !1;
-    const s = URL.createObjectURL(
+    const n = URL.createObjectURL(
       new Blob(
         [`import("${e}").then(m => new m.default(self))`],
         { type: "text/javascript" }
       )
     );
-    this._worker = new Worker(s, { type: "module" }), setTimeout(() => URL.revokeObjectURL(s), 0), this._workerMessageSender = new l(this._worker), this._workerMessageReceiver = new h(this._worker), this._workerMessageReceiver.onMessage = (n) => this._onReceive(n, t);
+    this._worker = new Worker(n, { type: "module" }), setTimeout(() => URL.revokeObjectURL(n), 0), this._workerMessageSender = new w(this._worker), this._workerMessageReceiver = new m(this._worker), this._workerMessageReceiver.onMessage = (r) => this._onReceive(r, t);
   }
   get ready() {
     return this._ready;
@@ -89,7 +137,7 @@ class c {
     }
   }
 }
-class _ {
+class f {
   constructor(e) {
     if (this.name = null, this.version = null, this.description = null, this.extensionCodeUrl = null, this.extensionManifestUrl = null, URL.canParse(e))
       e.endsWith("package.json") ? this._urlRoot = new URL(e.replace("package.json", "")) : this._urlRoot = new URL(e);
@@ -118,26 +166,26 @@ class _ {
     });
   }
 }
-const r = class r {
+const a = class a {
   constructor(e) {
-    this._extensionWorker = null, this.name = null, this.version = null, this.packageName = null, this.description = null, this.exporters = [], this._debug("start - extensionPackageOrUrl", e), this._extensionId = crypto.randomUUID(), this._extensionLoader = new _(e), this._extensionLoader.onExtensionLoaded = (t, s) => {
-      this._debug("extension - loaded", t, s), this.name = s.name, this.description = s.description, this.packageName = s.packageName, this.version = this._extensionLoader.version, this.exporters = s.exporters.map((n) => ({
-        label: n.label,
-        description: n.description,
-        key: `${this._extensionId}::${n.key}`,
-        action: async (i) => {
-          var a;
-          this._debug("exporter - data,exporter", i, n), await ((a = this._extensionWorker) == null ? void 0 : a.send({ payload: i, type: `exporters:${n.key}` }));
+    this._extensionWorker = null, this.loading = d(!1), this.name = d(null), this.version = d(null), this.packageName = d(null), this.description = d(null), this.exporters = d([]), this._debug("start - extensionPackageOrUrl", e), this.loading.value = !0, this._extensionId = crypto.randomUUID(), this._extensionLoader = new f(e), this._extensionLoader.onExtensionLoaded = (t, n) => {
+      this._debug("extension - loaded", t, n), this.name.value = n.name, this.description.value = n.description, this.packageName.value = n.packageName, this.version.value = this._extensionLoader.version, this.exporters.value = n.exporters.map((r) => ({
+        label: r.label,
+        description: r.description,
+        key: `${this._extensionId}::${r.key}`,
+        action: async (l) => {
+          var o;
+          this._debug("exporter - data,exporter", l, r), await ((o = this._extensionWorker) == null ? void 0 : o.send({ payload: l, type: `exporters:${r.key}` }));
         }
-      })), this._extensionWorker = new c(this._extensionLoader.extensionCodeUrl || "", this._onReceive.bind(this));
+      })), this._extensionWorker = new E(this._extensionLoader.extensionCodeUrl || "", this._onReceive.bind(this)), this.loading.value = !1;
     };
   }
   _debug(e, ...t) {
-    r.debug && console.log(e, ...t);
+    a.debug && console.log(e, ...t);
   }
   async deactivate() {
     var e;
-    this._extensionLoader.cancelLoad(), await ((e = this._extensionWorker) == null ? void 0 : e.deactivate()), r.removeExporters(this.exporters.map((t) => t.key));
+    this._extensionLoader.cancelLoad(), await ((e = this._extensionWorker) == null ? void 0 : e.deactivate()), a.removeExporters(this.exporters.value.map((t) => t.key));
   }
   _onReceive(e) {
     switch (e.type) {
@@ -148,15 +196,15 @@ const r = class r {
         this._handleDownloadFile(e.payload);
         break;
       case "ready":
-        console.log("Pronto, carregado"), r.addExporters(this.exporters);
+        a.addExporters(this.exporters.value);
         break;
     }
   }
   _handleDownloadFile(e) {
-    e && r.downloadFile(e.fileName, e.fileType, e.fileContent);
+    e && a.downloadFile(e.fileName, e.fileType, e.fileContent);
   }
   _handleFeedback(e) {
-    e && r.feedback(e.message, e.type);
+    e && a.feedback(e.message, e.type);
   }
   static addExporters(e) {
     throw new Error("Download file method not implemented yet");
@@ -164,16 +212,16 @@ const r = class r {
   static removeExporters(e) {
     throw new Error("Download file method not implemented yet");
   }
-  static downloadFile(e, t, s) {
+  static downloadFile(e, t, n) {
     throw new Error("Download file method not implemented yet");
   }
   static feedback(e, t) {
     throw new Error("Feedback method not implemented yet");
   }
 };
-r.debug = !1;
-let d = r;
-class g {
+a.debug = !1;
+let p = a;
+class U {
   constructor(e) {
     this._commands = {}, this.commands = {
       /**
@@ -182,9 +230,9 @@ class g {
        * @param key Key of the exporter previous added
        * @param action Function to be executed when the event was called
        */
-      addExporter: async (t, s) => {
-        const n = `${t}`;
-        console.log("add export", n, s), this._commands[`exporters:${n}`] = s.bind(this);
+      addExporter: async (t, n) => {
+        const r = `${t}`;
+        this._commands[`exporters:${r}`] = n.bind(this);
       },
       /**
        * Used to remove the project exporter
@@ -192,8 +240,8 @@ class g {
        * @param key Key of the exporter previous added
        */
       removeExporter: async (t) => {
-        const s = `${t}`;
-        console.log("remove export", s), delete this._commands[`exporters:${s}`];
+        const n = `${t}`;
+        delete this._commands[`exporters:${n}`];
       },
       /**
        * Allow you to download some content in a file
@@ -202,10 +250,10 @@ class g {
        * @param fileType extension of the file
        * @param fileContent file content in string
        */
-      downloadFile: async (t, s, n) => {
+      downloadFile: async (t, n, r) => {
         await this._workerSender.send({
           type: "download:file",
-          payload: { fileName: t, fileType: s, fileContent: n }
+          payload: { fileName: t, fileType: n, fileContent: r }
         });
       },
       /**
@@ -214,24 +262,24 @@ class g {
        * @param message Message of the feedback
        * @param type type of the feedback
        */
-      feedback: async (t, s) => {
+      feedback: async (t, n) => {
         await this._workerSender.send({
           type: "feedback",
-          payload: { message: t, type: s }
+          payload: { message: t, type: n }
         });
       }
-    }, this._workerReceiver = new h(e), this._workerSender = new l(e), this._commands.activate = this.activate.bind(this), this._commands.deactivate = this.deactivate.bind(this), this._workerReceiver.onMessage = this._onEvent.bind(this), this._handleReady();
+    }, this._workerReceiver = new m(e), this._workerSender = new w(e), this._commands.activate = this.activate.bind(this), this._commands.deactivate = this.deactivate.bind(this), this._workerReceiver.onMessage = this._onEvent.bind(this), this._handleReady();
   }
   _onEvent(e) {
-    var t, s;
-    console.log("message", e, this._commands), (s = (t = this._commands)[e.type]) == null || s.call(t, e.payload);
+    var t, n;
+    (n = (t = this._commands)[e.type]) == null || n.call(t, e.payload);
   }
   async _handleReady() {
     await this._workerSender.send({ type: "ready" });
   }
 }
 export {
-  g as Extension,
-  d as ExtensionRunner
+  U as Extension,
+  p as ExtensionRunner
 };
 //# sourceMappingURL=index.es.js.map

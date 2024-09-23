@@ -1,3 +1,4 @@
+import { IObservable } from 'react-observing/dist/interfaces/IObservable';
 import { IExporter } from '../IExporter';
 export declare class ExtensionRunner {
     static debug: boolean;
@@ -5,11 +6,12 @@ export declare class ExtensionRunner {
     private _extensionId;
     private _extensionLoader;
     private _extensionWorker;
-    name: string | null;
-    version: string | null;
-    packageName: string | null;
-    description: string | null;
-    exporters: IExporter[];
+    loading: IObservable<boolean>;
+    name: IObservable<string | null>;
+    version: IObservable<string | null>;
+    packageName: IObservable<string | null>;
+    description: IObservable<string | null>;
+    exporters: IObservable<IExporter[]>;
     constructor(url: string);
     constructor(packageName: string);
     deactivate(): Promise<void>;

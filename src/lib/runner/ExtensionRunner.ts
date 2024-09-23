@@ -1,3 +1,6 @@
+import { IObservable } from 'react-observing/dist/interfaces/IObservable';
+import { observe } from 'react-observing/dist/core/Observe';
+
 import { ExtensionWorker } from './ExtensionWorker';
 import { ExtensionLoader } from './ExtensionLoader';
 import { IExporter } from '../IExporter';
@@ -15,11 +18,13 @@ export class ExtensionRunner {
   private _extensionLoader: ExtensionLoader;
   private _extensionWorker: ExtensionWorker | null = null;
 
-  public name: string | null = null;
-  public version: string | null = null;
-  public packageName: string | null = null;
-  public description: string | null = null;
-  public exporters: IExporter[] = [];
+  public loading = observe(false);
+
+  public name: IObservable<string | null> = observe(null);
+  public version: IObservable<string | null> = observe(null);
+  public packageName: IObservable<string | null> = observe(null);
+  public description: IObservable<string | null> = observe(null);
+  public exporters: IObservable<IExporter[]> = observe([]);
 
 
   constructor(url: string);
@@ -27,18 +32,19 @@ export class ExtensionRunner {
   constructor(extensionPackageOrUrl: string) {
     this._debug('start - extensionPackageOrUrl', extensionPackageOrUrl);
 
+    this.loading.value = true;
     this._extensionId = crypto.randomUUID();
     this._extensionLoader = new ExtensionLoader(extensionPackageOrUrl);
 
     this._extensionLoader.onExtensionLoaded = (_packageData, _manifestData) => {
       this._debug('extension - loaded', _packageData, _manifestData);
 
-      this.name = _manifestData.name;
-      this.description = _manifestData.description;
-      this.packageName = _manifestData.packageName;
-      this.version = this._extensionLoader.version;
+      this.name.value = _manifestData.name;
+      this.description.value = _manifestData.description;
+      this.packageName.value = _manifestData.packageName;
+      this.version.value = this._extensionLoader.version;
 
-      this.exporters = _manifestData.exporters.map(exporterData => ({
+      this.exporters.value = _manifestData.exporters.map(exporterData => ({
         label: exporterData.label,
         description: exporterData.description,
         key: `${this._extensionId}::${exporterData.key}`,
@@ -49,6 +55,8 @@ export class ExtensionRunner {
       }));
 
       this._extensionWorker = new ExtensionWorker(this._extensionLoader.extensionCodeUrl || '', this._onReceive.bind(this));
+
+      this.loading.value = false;
     }
   }
 
@@ -56,7 +64,7 @@ export class ExtensionRunner {
   public async deactivate() {
     this._extensionLoader.cancelLoad();
     await this._extensionWorker?.deactivate();
-    ExtensionRunner.removeExporters(this.exporters.map(exporter => exporter.key));
+    ExtensionRunner.removeExporters(this.exporters.value.map(exporter => exporter.key));
   }
 
 
@@ -69,7 +77,7 @@ export class ExtensionRunner {
         this._handleDownloadFile(message.payload);
         break;
       case 'ready':
-        ExtensionRunner.addExporters(this.exporters);
+        ExtensionRunner.addExporters(this.exporters.value);
         break;
 
       default: break;
