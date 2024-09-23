@@ -1,26 +1,16 @@
-import { IExporter } from './IExporter';
-export declare class Extension {
-    private _extensionId;
+export declare abstract class Extension {
     private _commands;
     private _workerReceiver;
     private _workerSender;
     constructor(_target: Window | Worker);
     /**
-     * Use this prop to create a good name of the extension. This will be showed in the platform.
-     */
-    name: string | null;
-    /**
-     * Use this prop to create a good description of the extension. This will be showed in the platform.
-     */
-    description: string | null;
-    /**
      * First function call when extension starts.
      */
-    activate(): void;
+    abstract activate(): void;
     /**
      * Last function call when extension ends.
      */
-    deactivate(): void;
+    abstract deactivate(): void;
     /**
      * All available commands to do in the platform
      */
@@ -28,11 +18,10 @@ export declare class Extension {
         /**
          * Allow you to add a project exporter in the platform. You can develop a code export.
          *
-         * @param exporter Object with a action
+         * @param key Key of the exporter previous added
+         * @param action Function to be executed when the event was called
          */
-        readonly addExporter: (exporter: Pick<IExporter, "key" | "label"> & {
-            action: ((data: any) => void);
-        }) => Promise<void>;
+        readonly addExporter: (key: string, action: ((data: any) => void)) => Promise<void>;
         /**
          * Used to remove the project exporter
          *
@@ -56,5 +45,5 @@ export declare class Extension {
         readonly feedback: (message: string, type: "warning" | "success" | "error" | "info") => Promise<void>;
     };
     private _onEvent;
-    private _handleInformation;
+    private _handleReady;
 }

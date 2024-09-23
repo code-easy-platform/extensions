@@ -1,2 +1,2 @@
-export { ExtensionRunner } from './lib/ExtensionRunner'
+export { ExtensionRunner } from './lib/runner/ExtensionRunner'
 export { Extension } from './lib/Extension'

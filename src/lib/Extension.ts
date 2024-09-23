@@ -1,11 +1,10 @@
 import { WorkerMessageReceiver } from './WorkerMessageReceiver';
 import { WorkerMessageSender } from './WorkerMessageSender';
-import { IExporter } from './IExporter';
 import { IMessage } from './IMessage';
 
 
-export class Extension {
-  private _extensionId = crypto.randomUUID();
+
+export abstract class Extension {
   private _commands: Record<string, ((data: any) => void)> = {};
 
   private _workerReceiver: WorkerMessageReceiver;
@@ -15,31 +14,24 @@ export class Extension {
   constructor(_target: Window | Worker) {
     this._workerReceiver = new WorkerMessageReceiver(_target);
     this._workerSender = new WorkerMessageSender(_target);
-    
+
     this._commands['activate'] = this.activate.bind(this);
     this._commands['deactivate'] = this.deactivate.bind(this);
-    this._commands['information'] = this._handleInformation.bind(this);
 
     this._workerReceiver.onMessage = this._onEvent.bind(this);
+
+    this._handleReady();
   }
 
 
   /**
-   * Use this prop to create a good name of the extension. This will be showed in the platform.
-   */
-  public name: string | null = null;
-  /**
-   * Use this prop to create a good description of the extension. This will be showed in the platform.
-   */
-  public description: string | null = null;
-  /**
    * First function call when extension starts.
    */
-  public activate() { }
+  public abstract activate(): void;
   /**
    * Last function call when extension ends.
    */
-  public deactivate() { }
+  public abstract deactivate(): void;
 
 
   /**
@@ -49,20 +41,12 @@ export class Extension {
     /**
      * Allow you to add a project exporter in the platform. You can develop a code export.
      * 
-     * @param exporter Object with a action
+     * @param key Key of the exporter previous added
+     * @param action Function to be executed when the event was called
      */
-    addExporter: async (exporter: Pick<IExporter, 'key' | 'label'> & { action: ((data: any) => void) }) => {
-      const commandKey = `${this._extensionId}:${exporter.key}`;
-
-      this._commands[`exporters:${commandKey}`] = exporter.action.bind(this);
-
-      await this._workerSender.send({
-        type: 'add:exporter',
-        payload: {
-          key: commandKey,
-          label: exporter.label,
-        },
-      });
+    addExporter: async (key: string, action: ((data: any) => void)) => {
+      const commandKey = `${key}`;
+      this._commands[`exporters:${commandKey}`] = action.bind(this);
     },
     /**
      * Used to remove the project exporter
@@ -70,14 +54,8 @@ export class Extension {
      * @param key Key of the exporter previous added
      */
     removeExporter: async (key: string) => {
-      const commandKey = `${this._extensionId}:${key}`;
-
+      const commandKey = `${key}`;
       delete this._commands[`exporters:${commandKey}`];
-
-      await this._workerSender.send({
-        type: 'remove:exporter',
-        payload: commandKey,
-      });
     },
     /**
      * Allow you to download some content in a file
@@ -111,14 +89,7 @@ export class Extension {
     this._commands[message.type]?.(message.payload);
   }
 
-  private async _handleInformation() {
-    await this._workerSender.send({
-      type: 'set:name',
-      payload: this.name || 'Nothing set here',
-    });
-    await this._workerSender.send({
-      type: 'set:description',
-      payload: this.description || 'Nothing set here',
-    });
+  private async _handleReady() {
+    await this._workerSender.send({ type: 'ready' });
   }
 }

@@ -4,4 +4,6 @@ export declare class WorkerMessageReceiver {
     constructor(_target: Window | Worker);
     private _respond;
     private _onMessageEvent;
+    private _onErrorEvent;
+    private _onErrorMessageEvent;
 }

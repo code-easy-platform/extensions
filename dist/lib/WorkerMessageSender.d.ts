@@ -4,7 +4,5 @@ export declare class WorkerMessageSender {
     private _messageQueue;
     constructor(_target: Window | Worker);
     send<T>(message: IMessage<T>): Promise<unknown>;
-    private _onErrorEvent;
-    private _onErrorMessageEvent;
     private _onMessageEvent;
 }

@@ -6,12 +6,7 @@ export class WorkerMessageSender {
 
 
   constructor(private _target: Window | Worker) {
-    this._target.onerror = this._onErrorEvent.bind(this);
-    this._target.onmessageerror = this._onErrorMessageEvent.bind(this);
-
-    this._target.addEventListener('error', this._onErrorEvent.bind(this));
     this._target.addEventListener('message', this._onMessageEvent.bind(this));
-    this._target.addEventListener('messageerror', this._onErrorMessageEvent.bind(this));
   }
 
 
@@ -38,18 +33,6 @@ export class WorkerMessageSender {
     });
   }
 
-
-  private _onErrorEvent(event: MessageEvent | Event) {
-    if (!(event instanceof MessageEvent)) return;
-
-    console.log(event);
-  }
-
-  private _onErrorMessageEvent(event: MessageEvent | Event) {
-    if (!(event instanceof MessageEvent)) return;
-
-    console.log(event);
-  }
 
   private _onMessageEvent(event: MessageEvent | Event) {
     if (!(event instanceof MessageEvent)) return;
