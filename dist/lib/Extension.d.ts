@@ -1,3 +1,4 @@
+import { TFileToDownload } from './runner/IFileToDownload';
 export declare abstract class Extension {
     private _commands;
     private _workerReceiver;
@@ -36,6 +37,13 @@ export declare abstract class Extension {
          * @param fileContent file content in string
          */
         readonly downloadFile: (fileName: string, fileType: string, fileContent: string) => Promise<void>;
+        /**
+         * Allow you to download a lot of files and folders as zip
+         *
+         * @param downloadName Name of the download as zip
+         * @param files List of files or folders to download
+         */
+        readonly downloadFiles: (downloadName: string, files: TFileToDownload) => Promise<void>;
         /**
          * Allow to show some feedback to the platform user
          *

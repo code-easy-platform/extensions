@@ -1,5 +1,6 @@
 import { WorkerMessageReceiver } from './WorkerMessageReceiver';
 import { WorkerMessageSender } from './WorkerMessageSender';
+import { TFileToDownload } from './runner/IFileToDownload';
 import { IMessage } from './IMessage';
 
 
@@ -68,6 +69,18 @@ export abstract class Extension {
       await this._workerSender.send({
         type: 'download:file',
         payload: { fileName, fileType, fileContent },
+      });
+    },
+    /**
+     * Allow you to download a lot of files and folders as zip
+     * 
+     * @param downloadName Name of the download as zip
+     * @param files List of files or folders to download
+     */
+    downloadFiles: async (downloadName: string, files: TFileToDownload) => {
+      await this._workerSender.send({
+        type: 'download:files',
+        payload: { downloadName, files },
       });
     },
     /**

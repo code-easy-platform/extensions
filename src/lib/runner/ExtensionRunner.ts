@@ -1,6 +1,7 @@
 import { IObservable } from 'react-observing/dist/interfaces/IObservable';
 import { observe } from 'react-observing/dist/core/Observe';
 
+import { TFileToDownload } from './IFileToDownload';
 import { ExtensionWorker } from './ExtensionWorker';
 import { ExtensionLoader } from './ExtensionLoader';
 import { IExporter } from '../IExporter';
@@ -77,6 +78,8 @@ export class ExtensionRunner {
         break;
       case 'download:file':
         this._handleDownloadFile(message.payload);
+      case 'download:files':
+        this._handleDownloadFile(message.payload);
         break;
       case 'ready':
         ExtensionRunner.addExporters(this.exporters.value);
@@ -86,10 +89,10 @@ export class ExtensionRunner {
     }
   }
 
-  private _handleDownloadFile(payload: { fileName: string; fileType: string; fileContent: string; }) {
+  private _handleDownloadFile(payload: { downloadName: string; files: TFileToDownload[]; }) {
     if (!payload) return;
 
-    ExtensionRunner.downloadFile(payload.fileName, payload.fileType, payload.fileContent);
+    ExtensionRunner.downloadFiles(payload.downloadName, payload.files);
   }
 
   private _handleFeedback(payload: { message: string; type: 'warning' | 'success' | 'error' | 'info'; }) {
@@ -109,6 +112,10 @@ export class ExtensionRunner {
 
   public static downloadFile(_fileName: string, _fileType: string, _fileContent: string) {
     throw new Error("Download file method not implemented yet");
+  }
+
+  public static downloadFiles(_downloadName: string, _files: TFileToDownload[]) {
+    throw new Error("Download files method not implemented yet");
   }
 
   public static feedback(_message: string, _type: 'warning' | 'success' | 'error' | 'info') {
