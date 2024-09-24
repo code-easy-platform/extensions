@@ -79,7 +79,7 @@ export class ExtensionRunner {
       case 'download:file':
         this._handleDownloadFile(message.payload);
       case 'download:files':
-        this._handleDownloadFile(message.payload);
+        this._handleDownloadFiles(message.payload);
         break;
       case 'ready':
         ExtensionRunner.addExporters(this.exporters.value);
@@ -89,7 +89,13 @@ export class ExtensionRunner {
     }
   }
 
-  private _handleDownloadFile(payload: { downloadName: string; files: TFileToDownload[]; }) {
+  private _handleDownloadFile(payload: { fileName: string; fileType: string; fileContent: string; }) {
+    if (!payload) return;
+
+    ExtensionRunner.downloadFile(payload.fileName, payload.fileType, payload.fileContent);
+  }
+
+  private _handleDownloadFiles(payload: { downloadName: string; files: TFileToDownload[]; }) {
     if (!payload) return;
 
     ExtensionRunner.downloadFiles(payload.downloadName, payload.files);

@@ -19,6 +19,7 @@ export declare class ExtensionRunner {
     deactivate(): Promise<void>;
     private _onReceive;
     private _handleDownloadFile;
+    private _handleDownloadFiles;
     private _handleFeedback;
     static addExporters(_exporters: IExporter[]): void;
     static removeExporters(_keys: string[]): void;

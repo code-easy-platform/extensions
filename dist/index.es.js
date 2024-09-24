@@ -8,26 +8,26 @@ function k() {
 const r = [];
 for (let n = 0; n < 256; ++n)
   r.push((n + 256).toString(16).slice(1));
-function x(n, e = 0) {
+function f(n, e = 0) {
   return r[n[e + 0]] + r[n[e + 1]] + r[n[e + 2]] + r[n[e + 3]] + "-" + r[n[e + 4]] + r[n[e + 5]] + "-" + r[n[e + 6]] + r[n[e + 7]] + "-" + r[n[e + 8]] + r[n[e + 9]] + "-" + r[n[e + 10]] + r[n[e + 11]] + r[n[e + 12]] + r[n[e + 13]] + r[n[e + 14]] + r[n[e + 15]];
 }
-const b = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), _ = {
-  randomUUID: b
+const x = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), _ = {
+  randomUUID: x
 };
-function p(n, e, t) {
+function w(n, e, t) {
   if (_.randomUUID && !e && !n)
     return _.randomUUID();
   n = n || {};
   const s = n.random || (n.rng || k)();
-  return s[6] = s[6] & 15 | 64, s[8] = s[8] & 63 | 128, x(s);
+  return s[6] = s[6] & 15 | 64, s[8] = s[8] & 63 | 128, f(s);
 }
 function d(n) {
-  const e = [], t = p(), s = (o) => {
+  const e = [], t = w(), s = (o) => {
     n = o, e.forEach((l) => l.emit(o));
   }, i = () => n;
   return {
     subscribe: (o) => {
-      const l = { id: p(), emit: o };
+      const l = { id: w(), emit: o };
       return e.push(l), {
         observerId: t,
         id: l.id,
@@ -46,7 +46,7 @@ function d(n) {
     }
   };
 }
-class g {
+class p {
   constructor(e) {
     this._target = e, this.onMessage = null, this._target.addEventListener("error", this._onErrorEvent.bind(this)), this._target.addEventListener("message", this._onMessageEvent.bind(this)), this._target.addEventListener("messageerror", this._onErrorMessageEvent.bind(this));
   }
@@ -87,7 +87,7 @@ class m {
     e instanceof MessageEvent && e.data.type === "response" && ((s = (t = this._messageQueue)[e.data.messageId]) == null || s.call(t));
   }
 }
-class E {
+class b {
   constructor(e, t) {
     this._worker = null, this._workerMessageSender = null, this._workerMessageReceiver = null, this._ready = !1, this._hasError = !1, this._hasInitialized = !1;
     const s = URL.createObjectURL(
@@ -96,7 +96,7 @@ class E {
         { type: "text/javascript" }
       )
     );
-    this._worker = new Worker(s, { type: "module" }), setTimeout(() => URL.revokeObjectURL(s), 0), this._workerMessageSender = new m(this._worker), this._workerMessageReceiver = new g(this._worker), this._workerMessageReceiver.onMessage = (i) => this._onReceive(i, t);
+    this._worker = new Worker(s, { type: "module" }), setTimeout(() => URL.revokeObjectURL(s), 0), this._workerMessageSender = new m(this._worker), this._workerMessageReceiver = new p(this._worker), this._workerMessageReceiver.onMessage = (i) => this._onReceive(i, t);
   }
   get ready() {
     return this._ready;
@@ -137,7 +137,7 @@ class E {
     }
   }
 }
-class f {
+class E {
   constructor(e) {
     if (this.name = null, this.version = null, this.description = null, this.extensionCodeUrl = null, this.extensionManifestUrl = null, URL.canParse(e))
       e.endsWith("package.json") ? this._urlRoot = new URL(e.replace("package.json", "")) : this._urlRoot = new URL(e);
@@ -168,7 +168,7 @@ class f {
 }
 const a = class a {
   constructor(e) {
-    this._extensionWorker = null, this.loading = d(!1), this.url = d(null), this.name = d(null), this.version = d(null), this.packageName = d(null), this.description = d(null), this.exporters = d([]), this._debug("start - extensionPackageOrUrl", e), this.loading.value = !0, this._extensionId = crypto.randomUUID(), this._extensionLoader = new f(e), this._extensionLoader.onExtensionLoaded = (t, s) => {
+    this._extensionWorker = null, this.loading = d(!1), this.url = d(null), this.name = d(null), this.version = d(null), this.packageName = d(null), this.description = d(null), this.exporters = d([]), this._debug("start - extensionPackageOrUrl", e), this.loading.value = !0, this._extensionId = crypto.randomUUID(), this._extensionLoader = new E(e), this._extensionLoader.onExtensionLoaded = (t, s) => {
       this._debug("extension - loaded", t, s), this.name.value = s.name, this.description.value = s.description, this.packageName.value = s.packageName, this.version.value = this._extensionLoader.version, this.url.value = this._extensionLoader.extensionPackageUrl, this.exporters.value = s.exporters.map((i) => ({
         label: i.label,
         description: i.description,
@@ -177,7 +177,7 @@ const a = class a {
           var o;
           this._debug("exporter - data,exporter", c, i), await ((o = this._extensionWorker) == null ? void 0 : o.send({ payload: c, type: `exporters:${i.key}` }));
         }
-      })), this._extensionWorker = new E(this._extensionLoader.extensionCodeUrl || "", this._onReceive.bind(this)), this.loading.value = !1;
+      })), this._extensionWorker = new b(this._extensionLoader.extensionCodeUrl || "", this._onReceive.bind(this)), this.loading.value = !1;
     };
   }
   _debug(e, ...t) {
@@ -195,7 +195,7 @@ const a = class a {
       case "download:file":
         this._handleDownloadFile(e.payload);
       case "download:files":
-        this._handleDownloadFile(e.payload);
+        this._handleDownloadFiles(e.payload);
         break;
       case "ready":
         a.addExporters(this.exporters.value);
@@ -203,6 +203,9 @@ const a = class a {
     }
   }
   _handleDownloadFile(e) {
+    e && a.downloadFile(e.fileName, e.fileType, e.fileContent);
+  }
+  _handleDownloadFiles(e) {
     e && a.downloadFiles(e.downloadName, e.files);
   }
   _handleFeedback(e) {
@@ -225,7 +228,7 @@ const a = class a {
   }
 };
 a.debug = !1;
-let w = a;
+let g = a;
 class U {
   constructor(e) {
     this._commands = {}, this.commands = {
@@ -285,7 +288,7 @@ class U {
           payload: { message: t, type: s }
         });
       }
-    }, this._workerReceiver = new g(e), this._workerSender = new m(e), this._commands.activate = this.activate.bind(this), this._commands.deactivate = this.deactivate.bind(this), this._workerReceiver.onMessage = this._onEvent.bind(this), this._handleReady();
+    }, this._workerReceiver = new p(e), this._workerSender = new m(e), this._commands.activate = this.activate.bind(this), this._commands.deactivate = this.deactivate.bind(this), this._workerReceiver.onMessage = this._onEvent.bind(this), this._handleReady();
   }
   _onEvent(e) {
     var t, s;
@@ -297,6 +300,6 @@ class U {
 }
 export {
   U as Extension,
-  w as ExtensionRunner
+  g as ExtensionRunner
 };
 //# sourceMappingURL=index.es.js.map
