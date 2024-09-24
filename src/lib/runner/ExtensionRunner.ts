@@ -78,6 +78,7 @@ export class ExtensionRunner {
         break;
       case 'download:file':
         this._handleDownloadFile(message.payload);
+        break;
       case 'download:files':
         this._handleDownloadFiles(message.payload);
         break;

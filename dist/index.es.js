@@ -1,9 +1,9 @@
 let h;
-const v = new Uint8Array(16);
-function k() {
+const k = new Uint8Array(16);
+function v() {
   if (!h && (h = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !h))
     throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-  return h(v);
+  return h(k);
 }
 const r = [];
 for (let n = 0; n < 256; ++n)
@@ -18,7 +18,7 @@ function w(n, e, t) {
   if (_.randomUUID && !e && !n)
     return _.randomUUID();
   n = n || {};
-  const s = n.random || (n.rng || k)();
+  const s = n.random || (n.rng || v)();
   return s[6] = s[6] & 15 | 64, s[8] = s[8] & 63 | 128, f(s);
 }
 function d(n) {
@@ -194,6 +194,7 @@ const a = class a {
         break;
       case "download:file":
         this._handleDownloadFile(e.payload);
+        break;
       case "download:files":
         this._handleDownloadFiles(e.payload);
         break;
